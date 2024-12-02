@@ -19,6 +19,8 @@ const scene = new THREE.Scene()
  */
 const textureLoader = new THREE.TextureLoader()
 
+
+
 // Load the grass texture for the floor
 const grassTexture = textureLoader.load('/grass.jpg')
 grassTexture.repeat.set(10, 10) 
@@ -52,6 +54,53 @@ cube.position.set(1,4,0);
 scene.add( cube );
 
 
+//light
+const Light = new THREE.BoxGeometry(1, 2, 1 ); //lanipis, kataas, katambok
+const Lightmaterial = new THREE.MeshBasicMaterial( {color: 0x000000} ); 
+const cube3 = new THREE.Mesh( Light, Lightmaterial );
+cube3.position.set(7,0.5,8);
+scene.add( cube3 );
+
+
+//poste
+const LightPost = new THREE.BoxGeometry(0.2, 5, 0.5 ); //lanipis, kataas, katambok
+const Lightpostmaterial = new THREE.MeshBasicMaterial( {color: 0x716868} ); 
+const cube4 = new THREE.Mesh( LightPost, Lightpostmaterial );
+cube4.position.set(7,4,8); //side, up or down, forward or backward
+scene.add( cube4 );
+
+
+// Bulb for the lamp post (not part of the tree)
+const bulbGeometry = new THREE.SphereGeometry(0.5, 32, 32); // Adjust shape for better appearance
+const bulbMaterial = new THREE.MeshStandardMaterial({
+  color: 0xff7900,    // Base color of the bulb
+  emissive: 0xffa500, // Glow effect color
+  emissiveIntensity: 2, // Intensity of the glow
+});
+const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
+bulb.position.set(7, 6.7, 8); // Position (side, up or down, forward or backward)
+scene.add(bulb);
+
+// Add a PointLight to simulate the lighthouse effect
+const bulbLight = new THREE.PointLight(0xfff8dc, 1.5,1200); // Color, intensity, and range
+bulbLight.position.set(7, 6.7, 8); // Match bulb position
+scene.add(bulbLight);
+
+// Optional: Create a halo effect around the bulb
+const haloGeometry = new THREE.SphereGeometry(0.55, 32, 32); // Slightly larger than the bulb
+const haloMaterial = new THREE.MeshBasicMaterial({
+  color: 0xfff8dc,      // Glow color
+  transparent: true,    // Enable transparency
+  opacity: 0.2,         // Make it faint
+});
+const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+halo.position.set(7, 6.7, 8); // Match bulb position
+scene.add(halo);
+
+
+
+
+
 const garageGeometry = new THREE.BoxGeometry(4, 2.5, 4); // Width, height, depth
 const garageMaterial = new THREE.MeshStandardMaterial({ color: 0xa0522d }); // Brown color
 const garage = new THREE.Mesh(garageGeometry, garageMaterial);
@@ -72,6 +121,29 @@ const pool2 = new THREE.Mesh(poolwater, poolMaterial1);
 pool2.position.set(1.8, 0.1, -4.4); // Position the walls above the ground (adjust here to move the house)
 scene.add(pool2);
 
+
+
+// Define the properties for the pool lights
+const poolLightColor = 0xffffff; // White color for the lights
+const poolLightIntensity = 1; // Intensity of the lights
+const poolLightDistance = 10; // Distance at which the light is effective
+
+// Create four point lights around the pool
+const poolLight1 = new THREE.PointLight(poolLightColor, poolLightIntensity, poolLightDistance);
+poolLight1.position.set(1.8, 1, -4.4); // Position to the left of the pool
+scene.add(poolLight1);
+
+
+const poolLight2 = new THREE.PointLight(poolLightColor, poolLightIntensity, poolLightDistance);
+poolLight2.position.set(0.3, 1, -4.4); // Position to the front of the pool
+scene.add(poolLight2);
+
+const poolLight3 = new THREE.PointLight(poolLightColor, poolLightIntensity, poolLightDistance);
+poolLight3.position.set(3.3, 1, -4.4); // Position to the back of the pool
+scene.add(poolLight3);
+
+
+
 // Loading the garage texture (fixed the texture reference)
 const garageImage = textureLoader.load('/garage.jpg');
 garageImage.wrapS = THREE.RepeatWrapping;
@@ -83,6 +155,7 @@ const garageWallMaterial = new THREE.MeshStandardMaterial({ map: garageImage });
 const garageWallRight = new THREE.Mesh(garageWallGeometry, garageWallMaterial);
 garageWallRight.position.set(4.3, 1.10, 2.05); // Right side of the front wall
 scene.add(garageWallRight);
+
 
 // Roof (Cone)
 const roofGeometry1 = new THREE.ConeGeometry(3.5, 2, 4); // Radius, height, segments
@@ -97,6 +170,15 @@ const carmaterial = new THREE.MeshBasicMaterial( {color: 0x555555 } );
 const cube1 = new THREE.Mesh( carWay, carmaterial );
 cube1.position.set(4.3, 0, 4);
 scene.add( cube1 );
+
+//gatepath
+const doorPath = new THREE.BoxGeometry(1, 0.10, 5.20 ); 
+const pathmaterial = new THREE.MeshBasicMaterial( {color: 0x555555 } ); 
+const cube2 = new THREE.Mesh( doorPath, pathmaterial );
+cube2.position.set(0, 0, 4);
+scene.add( cube2 )
+
+
 
 
 
@@ -240,6 +322,37 @@ scene.add(layer3);
 
 
 
+// Load the moon texture
+const Moon = textureLoader.load();
+Moon.wrapS = THREE.RepeatWrapping; // Repeat horizontally
+Moon.wrapT = THREE.RepeatWrapping; // Repeat vertically
+
+// Create moon geometry
+const moonGeometry = new THREE.SphereGeometry(1, 20, 32); // Radius, width segments, height segments
+const moonMaterial = new THREE.MeshStandardMaterial({
+    map: Moon, // Texture map for the moon
+    emissive: 0xffffff, // White color for the emissive glow
+    emissiveIntensity: 1 // Set initial emissive intensity
+});
+
+const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+moon.position.set(-5, 12, -5); // Position the moon in the scene
+scene.add(moon);
+
+// Function to animate the moon glow
+const animateMoonGlow = () => {
+    // Randomly change the emissive intensity for flickering effect
+    moonMaterial.emissiveIntensity = Math.random() * 2; // Random intensity between 0 and 2
+};
+
+
+
+
+
+
+
+
+
 // Star on top (Geometry - A small sphere)
 const starGeometry = new THREE.SphereGeometry(0.3, 5, 5);
 const starMaterial = new THREE.MeshStandardMaterial({ color:  0xe8e337 }); // Yellow color
@@ -284,22 +397,29 @@ setInterval(() => {
 
 
 
+
+
+
 /**
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
+const ambientLight = new THREE.AmbientLight('#ffffff', 0)
 gui.add(ambientLight, 'intensity').min(0).max(1).step(0.001).name('Light Intensity'); // Added a name for clarity
 scene.add(ambientLight)
 
 // Directional light
-const moonLight = new THREE.DirectionalLight('#ffffff', 0.5)
+const moonLight = new THREE.DirectionalLight('#ffffff', 0)
 moonLight.position.set(4, 5, -2)
 gui.add(moonLight, 'intensity').min(0).max(1).step(0.001).name('Light Intensity 1');
 gui.add(moonLight.position, 'x').min(-5).max(5).step(0.001)
 gui.add(moonLight.position, 'y').min(-5).max(5).step(0.001)
 gui.add(moonLight.position, 'z').min(-5).max(5).step(0.001)
 scene.add(moonLight)
+
+
+
+
 
 /**
  * Sizes
@@ -327,9 +447,9 @@ window.addEventListener('resize', () => {
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 4
-camera.position.y = 2
-camera.position.z = 5
+camera.position.x = 20
+camera.position.y = 4
+camera.position.z = 15
 scene.add(camera)
 
 // Controls
@@ -344,6 +464,49 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+
+
+// Firefly parameters
+const fireflyCount = 100; // Number of fireflies
+const fireflies = []; // Array to hold firefly meshes
+const radius = 2; // Radius for circular movement around the tree
+const speed = 0.5; // Speed of the circular movement
+
+// Create fireflies
+for (let i = 0; i < fireflyCount; i++) {
+    const fireflyGeometry = new THREE.SphereGeometry(0.05, 5, 5); // Small sphere for firefly
+    const fireflyMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 1 }); // Yellow color with emissive effect
+    const firefly = new THREE.Mesh(fireflyGeometry, fireflyMaterial);
+
+    // Randomly position fireflies around the tree
+    const angle = Math.random() * Math.PI * 2; // Random angle for circular motion
+    const heightOffset = Math.random(); // Random height offset for twinkling effect
+
+
+    // Randomly position fireflies around the tree
+    const randomX = Math.random() * 2 - 1; // Random x position within the tree bounds
+    const randomY = Math.random() * 2 + 1; // Random y position above the trunk
+    const randomZ = Math.random() * 2 - 1; // Random z position within the tree bounds
+
+    firefly.position.set(-2 + randomX, randomY, 4 + randomZ); // Position firefly around the tree
+    scene.add(firefly); // Add firefly to the scene
+    fireflies.push(firefly); // Store firefly in array
+}
+
+// Animate fireflies
+const animateFireflies = () => {
+    
+    fireflies.forEach(firefly => {
+        // Randomly move fireflies in a small range
+        firefly.position.x += (Math.random() - 0.5) * 0.02; // Small random movement in x
+        firefly.position.y += (Math.random() - 0.5) * 0.02; // Small random movement in y
+        firefly.position.z += (Math.random() - 0.5) * 0.02; // Small random movement in z
+
+        // Make fireflies flicker
+        firefly.material.emissiveIntensity = Math.random(); // Random intensity for flickering effect
+    });
+};
 
 /**
  * Animate
@@ -361,6 +524,9 @@ const tick = () => {
     layer2.rotation.y += rotationSpeed; // Rotate layer 2
     layer3.rotation.y += rotationSpeed; // Rotate layer 3
     star.rotation.y += rotationSpeed * 0.5; // Rotate star slower for effect
+
+    // Update fireflies
+    animateFireflies(); 
 
     // Update controls
     controls.update()
